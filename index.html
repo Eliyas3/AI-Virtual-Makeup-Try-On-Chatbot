@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty AI Chat - Your Virtual Beauty Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff6b8b;
+            --secondary-color: #ffd1dc;
+            --accent-color: #ff8da1;
+            --text-color: #2c3e50;
+            --light-bg: #fff5f7;
+            --dark-bg: #2c3e50;
+            --chat-bg: #ffffff;
+            --user-msg: #ffd1dc;
+            --bot-msg: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            padding: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: white;
+            text-decoration: none;
+        }
+
+        .chat-container {
+            display: flex;
+            height: calc(100vh - 200px);
+            margin: 20px 0;
+            background: var(--chat-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .chat-sidebar {
+            width: 300px;
+            background: var(--light-bg);
+            padding: 20px;
+            border-right: 1px solid var(--secondary-color);
+        }
+
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            max-width: 80%;
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .message.user {
+            margin-left: auto;
+            background: var(--user-msg);
+            border-radius: 15px 15px 0 15px;
+        }
+
+        .message.bot {
+            margin-right: auto;
+            background: var(--bot-msg);
+            border-radius: 15px 15px 15px 0;
+        }
+
+        .message.bot .tip {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid var(--secondary-color);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--secondary-color);
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .chat-input button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            background-color: var(--accent-color);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quick-action-btn {
+            background: white;
+            border: 1px solid var(--secondary-color);
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .uploaded-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .suggestions {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .suggestion-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .suggestion-list {
+            list-style: none;
+        }
+
+        .suggestion-item {
+            padding: 8px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-item:hover {
+            color: var(--primary-color);
+        }
+
+        /* Footer Styles */
+        footer {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            padding: 20px 0;
+            margin-top: 20px;
+            border-radius: 15px;
+            color: white;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .developer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .developer-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-link {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .social-link i {
+            font-size: 0.9rem;
+        }
+
+        .social-link span {
+            font-size: 0.6rem;
+            opacity: 0.9;
+        }
+
+        .social-link:hover {
+            transform: translateY(-3px);
+        }
+
+        .social-link:hover i {
+            color: var(--secondary-color);
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+    <!-- Add Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <a href="#" class="logo">BeautyAI Chat</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-sidebar">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <h3>Upload Your Photo</h3>
+                    <p>Click to upload or drag and drop</p>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    <img id="uploadedImage" class="uploaded-image" alt="Uploaded photo">
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-action-btn">Skin Care Tips</button>
+                    <button class="quick-action-btn">Makeup Advice</button>
+                    <button class="quick-action-btn">Hair Care Tips</button>
+                    <button class="quick-action-btn">Beauty Trends</button>
+                </div>
+                <div class="suggestions">
+                    <div class="suggestion-title">Quick Suggestions</div>
+                    <ul class="suggestion-list">
+                        <li class="suggestion-item">What's my skin type?</li>
+                        <li class="suggestion-item">Best makeup for my face shape</li>
+                        <li class="suggestion-item">Daily skincare routine</li>
+                        <li class="suggestion-item">Hair care tips</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="chat-main">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        Hello! I'm your virtual beauty assistant. Upload a photo and I'll help you with personalized beauty tips, skincare advice, and makeup recommendations! 
+                        <div class="tip">💡 Tip: You can ask me about skincare routines, makeup tips, or any beauty-related questions!</div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Ask me anything about beauty...">
+                    <button id="sendButton">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="developer-info">
+                <span class="developer-name"><i class="fas fa-user-circle"></i> Eliyas Khan</span>
+                <div class="social-links">
+                    <a href="https://github.com/Eliyas3" class="social-link" target="_blank">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                    <a href="https://www.linkedin.com/in/eliyas-khan-9b3a3928b/" class="social-link" target="_blank">
+                        <i class="fab fa-linkedin"></i>
+                        <span>LinkedIn</span>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                © 2025 BeautyAI Chat. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const uploadedImage = document.getElementById('uploadedImage');
+
+        // File upload handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = 'var(--secondary-color)';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = 'transparent';
+            const file = e.dataTransfer.files[0];
+            handleFile(file);
+        });
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            handleFile(file);
+        });
+
+        function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImage.src = e.target.result;
+                    uploadedImage.style.display = 'block';
+                    addMessage('user', 'I uploaded a photo!');
+                    
+                    // Analyze the image and provide detailed recommendations
+                    analyzeImageAndProvideRecommendations(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function analyzeImageAndProvideRecommendations(imageData) {
+            // Simulate image analysis (in a real app, this would use AI/ML)
+            const skinTones = ['Fair', 'Light', 'Medium', 'Tan', 'Deep'];
+            const faceShapes = ['Oval', 'Round', 'Square', 'Heart', 'Diamond'];
+            const undertones = ['Cool', 'Warm', 'Neutral'];
+            const hairTypes = ['Straight', 'Wavy', 'Curly', 'Coily'];
+            const skinTypes = ['Normal', 'Dry', 'Oily', 'Combination', 'Sensitive'];
+            
+            // Random selection for demo (in real app, this would be based on actual analysis)
+            const skinTone = skinTones[Math.floor(Math.random() * skinTones.length)];
+            const faceShape = faceShapes[Math.floor(Math.random() * faceShapes.length)];
+            const undertone = undertones[Math.floor(Math.random() * undertones.length)];
+            const hairType = hairTypes[Math.floor(Math.random() * hairTypes.length)];
+            const skinType = skinTypes[Math.floor(Math.random() * skinTypes.length)];
+            
+            addMessage('bot', `Thank you for sharing your photo! I've analyzed your features and here are my personalized recommendations:`);
+            
+            // Comprehensive Analysis
+            addMessage('bot', `
+                <div class="tip">🎨 Beauty Analysis:
+                <ul>
+                    <li>Skin Tone: ${skinTone}</li>
+                    <li>Skin Type: ${skinType}</li>
+                    <li>Undertone: ${undertone}</li>
+                    <li>Face Shape: ${faceShape}</li>
+                    <li>Hair Type: ${hairType}</li>
+                </ul>
+                </div>
+            `);
+
+            // Integrated Skincare Routine
+            const skincareRoutines = {
+                'Normal': {
+                    morning: ['Gentle cleanser', 'Vitamin C serum', 'Lightweight moisturizer', 'SPF 30+'],
+                    night: ['Double cleanse', 'Hyaluronic acid', 'Retinol (2-3x/week)', 'Night cream']
+                },
+                'Dry': {
+                    morning: ['Cream cleanser', 'Hyaluronic acid', 'Rich moisturizer', 'SPF 30+'],
+                    night: ['Oil cleanse', 'Hydrating serum', 'Face oil', 'Rich night cream']
+                },
+                'Oily': {
+                    morning: ['Foaming cleanser', 'Niacinamide serum', 'Oil-free moisturizer', 'SPF 30+'],
+                    night: ['Double cleanse', 'BHA exfoliant', 'Light moisturizer', 'Spot treatment if needed']
+                },
+                'Combination': {
+                    morning: ['Gel cleanser', 'Balancing toner', 'Light moisturizer (T-zone)', 'Rich moisturizer (cheeks)', 'SPF 30+'],
+                    night: ['Double cleanse', 'Hydrating serum', 'Light moisturizer (T-zone)', 'Rich moisturizer (cheeks)']
+                },
+                'Sensitive': {
+                    morning: ['Gentle cleanser', 'Soothing serum', 'Fragrance-free moisturizer', 'Mineral SPF 30+'],
+                    night: ['Gentle cleanse', 'Calming serum', 'Barrier repair cream']
+                }
+            };
+
+            addMessage('bot', `
+                <div class="tip">💆‍♀️ Personalized Skincare Routine:
+                <ul>
+                    <li>Morning Routine:
+                        <ul>
+                            ${skincareRoutines[skinType].morning.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </li>
+                    <li>Night Routine:
+                        <ul>
+                            ${skincareRoutines[skinType].night.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </li>
+                </ul>
+                </div>
+            `);
+
+            // Integrated Hair Care Routine
+            const hairCareRoutines = {
+                'Straight': {
+                    shampoo: 'Clarifying shampoo (1-2x/week)',
+                    conditioner: 'Lightweight conditioner',
+                    treatments: ['Heat protectant', 'Volumizing spray'],
+                    styling: 'Lightweight mousse for volume'
+                },
+                'Wavy': {
+                    shampoo: 'Sulfate-free shampoo',
+                    conditioner: 'Moisturizing conditioner',
+                    treatments: ['Leave-in conditioner', 'Curl cream'],
+                    styling: 'Diffuser for natural waves'
+                },
+                'Curly': {
+                    shampoo: 'Co-wash or sulfate-free shampoo',
+                    conditioner: 'Deep conditioner',
+                    treatments: ['Leave-in conditioner', 'Curl cream', 'Gel'],
+                    styling: 'Plopping method, diffuser'
+                },
+                'Coily': {
+                    shampoo: 'Co-wash or moisturizing shampoo',
+                    conditioner: 'Deep conditioner',
+                    treatments: ['Leave-in conditioner', 'Butter or cream', 'Oil'],
+                    styling: 'LOC method, protective styles'
+                }
+            };
+
+            addMessage('bot', `
+                <div class="tip">💇‍♀️ Personalized Hair Care Routine:
+                <ul>
+                    <li>Shampoo: ${hairCareRoutines[hairType].shampoo}</li>
+                    <li>Conditioner: ${hairCareRoutines[hairType].conditioner}</li>
+                    <li>Treatments:
+                        <ul>
+                            ${hairCareRoutines[hairType].treatments.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </li>
+                    <li>Styling: ${hairCareRoutines[hairType].styling}</li>
+                </ul>
+                </div>
+            `);
+
+            // Integrated Makeup Recommendations
+            const makeupRoutines = {
+                'Normal': {
+                    base: 'Lightweight foundation or tinted moisturizer',
+                    concealer: 'Creamy concealer',
+                    powder: 'Light dusting of setting powder',
+                    blush: 'Cream or powder blush',
+                    highlight: 'Natural highlight'
+                },
+                'Dry': {
+                    base: 'Hydrating foundation or BB cream',
+                    concealer: 'Hydrating concealer',
+                    powder: 'Minimal powder, focus on cream products',
+                    blush: 'Cream blush',
+                    highlight: 'Liquid or cream highlight'
+                },
+                'Oily': {
+                    base: 'Matte foundation',
+                    concealer: 'Long-wear concealer',
+                    powder: 'Setting powder and blotting papers',
+                    blush: 'Powder blush',
+                    highlight: 'Powder highlight'
+                },
+                'Combination': {
+                    base: 'Buildable foundation',
+                    concealer: 'Balanced concealer',
+                    powder: 'Targeted powder application',
+                    blush: 'Cream-to-powder blush',
+                    highlight: 'Powder highlight'
+                },
+                'Sensitive': {
+                    base: 'Mineral foundation',
+                    concealer: 'Gentle concealer',
+                    powder: 'Mineral powder',
+                    blush: 'Mineral blush',
+                    highlight: 'Mineral highlight'
+                }
+            };
+
+            addMessage('bot', `
+                <div class="tip">💄 Personalized Makeup Routine:
+                <ul>
+                    <li>Base: ${makeupRoutines[skinType].base}</li>
+                    <li>Concealer: ${makeupRoutines[skinType].concealer}</li>
+                    <li>Powder: ${makeupRoutines[skinType].powder}</li>
+                    <li>Blush: ${makeupRoutines[skinType].blush}</li>
+                    <li>Highlight: ${makeupRoutines[skinType].highlight}</li>
+                </ul>
+                </div>
+            `);
+
+            // Seasonal Recommendations
+            addMessage('bot', `
+                <div class="tip">🌦️ Seasonal Beauty Tips:
+                <ul>
+                    <li>Summer:
+                        <ul>
+                            <li>Switch to lighter skincare products</li>
+                            <li>Use waterproof makeup</li>
+                            <li>Increase SPF protection</li>
+                            <li>Use UV protection for hair</li>
+                        </ul>
+                    </li>
+                    <li>Winter:
+                        <ul>
+                            <li>Switch to richer moisturizers</li>
+                            <li>Use hydrating makeup products</li>
+                            <li>Protect hair from cold damage</li>
+                            <li>Use humidifier indoors</li>
+                        </ul>
+                    </li>
+                </ul>
+                </div>
+            `);
+        }
+
+        function addMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Chat functionality
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+                addMessage('user', message);
+                messageInput.value = '';
+                
+                // Simulate bot response with beauty tips
+                setTimeout(() => {
+                    const beautyKnowledge = {
+                        // Skincare Knowledge
+                        "skincare": {
+                            "basics": `
+                                <div class="tip">💆‍♀️ Skincare Basics:
+                                <ul>
+                                    <li>Always start with a clean face</li>
+                                    <li>Use products in the correct order: thinnest to thickest consistency</li>
+                                    <li>Apply SPF every morning, even on cloudy days</li>
+                                    <li>Double cleanse at night to remove all makeup and sunscreen</li>
+                                    <li>Exfoliate 2-3 times per week</li>
+                                </ul>
+                                </div>
+                            `,
+                            "acne": `
+                                <div class="tip">🦠 Acne Treatment:
+                                <ul>
+                                    <li>Use a gentle cleanser with salicylic acid</li>
+                                    <li>Apply benzoyl peroxide spot treatment</li>
+                                    <li>Use non-comedogenic moisturizer</li>
+                                    <li>Avoid touching your face</li>
+                                    <li>Change pillowcases regularly</li>
+                                </ul>
+                                </div>
+                            `,
+                            "aging": `
+                                <div class="tip">⏳ Anti-Aging Tips:
+                                <ul>
+                                    <li>Use retinol at night</li>
+                                    <li>Apply vitamin C serum in the morning</li>
+                                    <li>Keep skin hydrated with hyaluronic acid</li>
+                                    <li>Use peptides for collagen production</li>
+                                    <li>Always wear SPF 30+</li>
+                                </ul>
+                                </div>
+                            `
+                        },
+                        // Makeup Knowledge
+                        "makeup": {
+                            "basics": `
+                                <div class="tip">💄 Makeup Basics:
+                                <ul>
+                                    <li>Start with a clean, moisturized face</li>
+                                    <li>Use primer for longer-lasting makeup</li>
+                                    <li>Apply foundation with a damp beauty sponge</li>
+                                    <li>Set with powder in T-zone</li>
+                                    <li>Blend, blend, blend!</li>
+                                </ul>
+                                </div>
+                            `,
+                            "eyeshadow": `
+                                <div class="tip">👁️ Eyeshadow Tips:
+                                <ul>
+                                    <li>Use an eyeshadow primer</li>
+                                    <li>Start with transition shade in crease</li>
+                                    <li>Build colors from light to dark</li>
+                                    <li>Blend edges for seamless look</li>
+                                    <li>Use matte shades for crease</li>
+                                </ul>
+                                </div>
+                            `,
+                            "contouring": `
+                                <div class="tip">✨ Contouring Guide:
+                                <ul>
+                                    <li>Use cool-toned products for shadows</li>
+                                    <li>Apply in natural light</li>
+                                    <li>Blend thoroughly</li>
+                                    <li>Use light hand for natural look</li>
+                                    <li>Set with powder for longevity</li>
+                                </ul>
+                                </div>
+                            `
+                        },
+                        // Hair Care Knowledge
+                        "haircare": {
+                            "basics": `
+                                <div class="tip">💇‍♀️ Hair Care Basics:
+                                <ul>
+                                    <li>Wash hair 2-3 times per week</li>
+                                    <li>Use sulfate-free shampoo</li>
+                                    <li>Apply conditioner from mid-length to ends</li>
+                                    <li>Use heat protectant before styling</li>
+                                    <li>Get regular trims every 6-8 weeks</li>
+                                </ul>
+                                </div>
+                            `,
+                            "damage": `
+                                <div class="tip">🔧 Repairing Damaged Hair:
+                                <ul>
+                                    <li>Use protein treatments weekly</li>
+                                    <li>Apply deep conditioning masks</li>
+                                    <li>Limit heat styling</li>
+                                    <li>Use leave-in conditioner</li>
+                                    <li>Sleep on silk pillowcase</li>
+                                </ul>
+                                </div>
+                            `,
+                            "growth": `
+                                <div class="tip">🌱 Hair Growth Tips:
+                                <ul>
+                                    <li>Massage scalp regularly</li>
+                                    <li>Use biotin supplements</li>
+                                    <li>Apply castor oil treatments</li>
+                                    <li>Protect ends from breakage</li>
+                                    <li>Eat protein-rich diet</li>
+                                </ul>
+                                </div>
+                            `
+                        },
+                        // Beauty Trends
+                        "trends": {
+                            "current": `
+                                <div class="tip">🌟 Current Beauty Trends:
+                                <ul>
+                                    <li>Glass skin makeup</li>
+                                    <li>Natural, bushy brows</li>
+                                    <li>Clean beauty products</li>
+                                    <li>Skinimalism (minimal skincare)</li>
+                                    <li>Blue light protection</li>
+                                </ul>
+                                </div>
+                            `,
+                            "sustainable": `
+                                <div class="tip">🌱 Sustainable Beauty:
+                                <ul>
+                                    <li>Use refillable products</li>
+                                    <li>Choose eco-friendly packaging</li>
+                                    <li>Support cruelty-free brands</li>
+                                    <li>Use multi-purpose products</li>
+                                    <li>DIY natural treatments</li>
+                                </ul>
+                                </div>
+                            `
+                        }
+                    };
+
+                    // Enhanced response system
+                    let response = "";
+                    const messageLower = message.toLowerCase();
+
+                    // Check for specific topics and subtopics
+                    if (messageLower.includes("skin")) {
+                        if (messageLower.includes("basic") || messageLower.includes("routine")) {
+                            response = beautyKnowledge.skincare.basics;
+                        } else if (messageLower.includes("acne") || messageLower.includes("breakout")) {
+                            response = beautyKnowledge.skincare.acne;
+                        } else if (messageLower.includes("aging") || messageLower.includes("wrinkle")) {
+                            response = beautyKnowledge.skincare.aging;
+                        } else {
+                            response = `
+                                <div class="tip">💆‍♀️ Skincare Advice:
+                                <ul>
+                                    <li>${beautyKnowledge.skincare.basics}</li>
+                                    <li>${beautyKnowledge.skincare.acne}</li>
+                                    <li>${beautyKnowledge.skincare.aging}</li>
+                                </ul>
+                                </div>
+                            `;
+                        }
+                    } else if (messageLower.includes("makeup")) {
+                        if (messageLower.includes("basic") || messageLower.includes("beginner")) {
+                            response = beautyKnowledge.makeup.basics;
+                        } else if (messageLower.includes("eye") || messageLower.includes("shadow")) {
+                            response = beautyKnowledge.makeup.eyeshadow;
+                        } else if (messageLower.includes("contour") || messageLower.includes("sculpt")) {
+                            response = beautyKnowledge.makeup.contouring;
+                        } else {
+                            response = `
+                                <div class="tip">💄 Makeup Tips:
+                                <ul>
+                                    <li>${beautyKnowledge.makeup.basics}</li>
+                                    <li>${beautyKnowledge.makeup.eyeshadow}</li>
+                                    <li>${beautyKnowledge.makeup.contouring}</li>
+                                </ul>
+                                </div>
+                            `;
+                        }
+                    } else if (messageLower.includes("hair")) {
+                        if (messageLower.includes("basic") || messageLower.includes("routine")) {
+                            response = beautyKnowledge.haircare.basics;
+                        } else if (messageLower.includes("damage") || messageLower.includes("repair")) {
+                            response = beautyKnowledge.haircare.damage;
+                        } else if (messageLower.includes("growth") || messageLower.includes("long")) {
+                            response = beautyKnowledge.haircare.growth;
+                        } else {
+                            response = `
+                                <div class="tip">💇‍♀️ Hair Care Tips:
+                                <ul>
+                                    <li>${beautyKnowledge.haircare.basics}</li>
+                                    <li>${beautyKnowledge.haircare.damage}</li>
+                                    <li>${beautyKnowledge.haircare.growth}</li>
+                                </ul>
+                                </div>
+                            `;
+                        }
+                    } else if (messageLower.includes("trend") || messageLower.includes("new")) {
+                        if (messageLower.includes("sustain") || messageLower.includes("eco")) {
+                            response = beautyKnowledge.trends.sustainable;
+                        } else {
+                            response = beautyKnowledge.trends.current;
+                        }
+                    } else {
+                        // If no specific topic is found, provide a comprehensive beauty guide
+                        response = `
+                            <div class="tip">✨ Comprehensive Beauty Guide:
+                            <ul>
+                                <li>Skincare:
+                                    <ul>
+                                        <li>${beautyKnowledge.skincare.basics}</li>
+                                        <li>${beautyKnowledge.skincare.acne}</li>
+                                        <li>${beautyKnowledge.skincare.aging}</li>
+                                    </ul>
+                                </li>
+                                <li>Makeup:
+                                    <ul>
+                                        <li>${beautyKnowledge.makeup.basics}</li>
+                                        <li>${beautyKnowledge.makeup.eyeshadow}</li>
+                                        <li>${beautyKnowledge.makeup.contouring}</li>
+                                    </ul>
+                                </li>
+                                <li>Hair Care:
+                                    <ul>
+                                        <li>${beautyKnowledge.haircare.basics}</li>
+                                        <li>${beautyKnowledge.haircare.damage}</li>
+                                        <li>${beautyKnowledge.haircare.growth}</li>
+                                    </ul>
+                                </li>
+                                <li>Current Trends:
+                                    <ul>
+                                        <li>${beautyKnowledge.trends.current}</li>
+                                        <li>${beautyKnowledge.trends.sustainable}</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            </div>
+                        `;
+                    }
+
+                    addMessage('bot', response);
+                }, 1000);
+            }
+        }
+
+        // Quick action buttons
+        document.querySelectorAll('.quick-action-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const action = button.textContent;
+                addMessage('user', `Tell me about ${action}`);
+                sendMessage();
+            });
+        });
+
+        // Suggestion items
+        document.querySelectorAll('.suggestion-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const question = item.textContent;
+                addMessage('user', question);
+                sendMessage();
+            });
+        });
+    </script>
+</body>
+</html> 
